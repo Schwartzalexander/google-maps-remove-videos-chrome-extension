@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Google Maps Remove Videos",
+  "description": "Filters videos from the Google Maps photo view and skips them while navigating with arrow keys.",
+  "version": "0.1.0",
+  "permissions": ["storage"],
+  "action": {
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "Google Maps Remove Videos"
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.google.com/maps/*",
+        "https://www.google.de/maps/*",
+        "https://maps.google.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

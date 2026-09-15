@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Google Maps Remove Videos icon">
+  <rect width="128" height="128" rx="28" fill="#1a73e8"/>
+  <rect x="24" y="30" width="80" height="68" rx="12" fill="#fff"/>
+  <circle cx="45" cy="50" r="8" fill="#34a853"/>
+  <path d="M28 91 54 65l18 18 12-12 18 20H28z" fill="#34a853"/>
+  <path d="M43 35 94 86" stroke="#ea4335" stroke-width="12" stroke-linecap="round"/>
+  <path d="M94 35 43 86" stroke="#ea4335" stroke-width="12" stroke-linecap="round"/>
+</svg>
