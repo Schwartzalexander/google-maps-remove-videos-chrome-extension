@@ -6,12 +6,17 @@
   const VIDEO_LABEL_RE = /\bvideo\b/i;
   const MAX_SKIP_ATTEMPTS = 12;
   const DIRECTIONS_PATH_RE = /^\/maps\/dir(?:\/|$)/;
+  const MILES_DISTANCE_RE = /\b\d+(?:[.,]\d+)?\s*(?:mi|miles|meilen)\b/i;
 
   let skipDirection = null;
   let skipAttempts = 0;
   let skipTimer = 0;
   let hideTimer = 0;
   let unitsTimer = 0;
+  let directionsUrlKey = "";
+  let directionsUnitsComplete = false;
+  let directionsUnitsOpenedOptions = false;
+  let directionsUnitsLastSetAt = 0;
   let enabled = true;
 
   function injectStyles() {
@@ -82,8 +87,46 @@
     return DIRECTIONS_PATH_RE.test(window.location.pathname);
   }
 
+  function getDirectionsUrlKey() {
+    return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  }
+
+  function resetDirectionsUnitsStateIfNeeded() {
+    const nextKey = isDirectionsPage() ? getDirectionsUrlKey() : "";
+
+    if (directionsUrlKey === nextKey) {
+      return;
+    }
+
+    directionsUrlKey = nextKey;
+    directionsUnitsComplete = false;
+    directionsUnitsOpenedOptions = false;
+    directionsUnitsLastSetAt = 0;
+  }
+
+  function hasVisibleMilesDistance() {
+    return Array.from(document.querySelectorAll("div, span")).some((element) => {
+      if (!isVisible(element)) {
+        return false;
+      }
+
+      return MILES_DISTANCE_RE.test(normalizedText(element));
+    });
+  }
+
+  function findDirectionsOptionsButton(expanded) {
+    return Array.from(document.querySelectorAll('button[jsaction*="toggleOptions"]')).find((button) => {
+      if (!isVisible(button)) {
+        return false;
+      }
+
+      return expanded === undefined || button.getAttribute("aria-expanded") === String(expanded);
+    });
+  }
+
   function enforceKilometers() {
     unitsTimer = 0;
+    resetDirectionsUnitsStateIfNeeded();
 
     if (!isDirectionsPage()) {
       return;
@@ -93,11 +136,38 @@
       'input[name="pane.directions-options-units"][value="KILOMETERS"]'
     );
 
-    if (!kilometersInput || kilometersInput.checked || kilometersInput.disabled) {
+    if (kilometersInput) {
+      if (!kilometersInput.checked && !kilometersInput.disabled) {
+        kilometersInput.click();
+        directionsUnitsLastSetAt = Date.now();
+      }
+
+      directionsUnitsComplete = true;
+
+      if (directionsUnitsOpenedOptions) {
+        const closeButton = findDirectionsOptionsButton(true);
+        if (closeButton) {
+          closeButton.click();
+          directionsUnitsOpenedOptions = false;
+        }
+      }
+
       return;
     }
 
-    kilometersInput.click();
+    if (directionsUnitsComplete) {
+      if (Date.now() - directionsUnitsLastSetAt < 2000 || !hasVisibleMilesDistance()) {
+        return;
+      }
+
+      directionsUnitsComplete = false;
+    }
+
+    const optionsButton = findDirectionsOptionsButton(false);
+    if (optionsButton) {
+      optionsButton.click();
+      directionsUnitsOpenedOptions = true;
+    }
   }
 
   function scheduleEnforceKilometers() {
@@ -105,7 +175,7 @@
       return;
     }
 
-    unitsTimer = window.setTimeout(enforceKilometers, 100);
+    unitsTimer = window.setTimeout(enforceKilometers, 20);
   }
 
   function isVisible(element) {
