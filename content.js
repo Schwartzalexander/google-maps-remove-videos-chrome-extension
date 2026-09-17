@@ -5,11 +5,13 @@
   const DURATION_RE = /^\d{1,2}:\d{2}(?::\d{2})?$/;
   const VIDEO_LABEL_RE = /\bvideo\b/i;
   const MAX_SKIP_ATTEMPTS = 12;
+  const DIRECTIONS_PATH_RE = /^\/maps\/dir(?:\/|$)/;
 
   let skipDirection = null;
   let skipAttempts = 0;
   let skipTimer = 0;
   let hideTimer = 0;
+  let unitsTimer = 0;
   let enabled = true;
 
   function injectStyles() {
@@ -74,6 +76,36 @@
     }
 
     hideTimer = window.setTimeout(hideGalleryVideos, 100);
+  }
+
+  function isDirectionsPage() {
+    return DIRECTIONS_PATH_RE.test(window.location.pathname);
+  }
+
+  function enforceKilometers() {
+    unitsTimer = 0;
+
+    if (!isDirectionsPage()) {
+      return;
+    }
+
+    const kilometersInput = document.querySelector(
+      'input[name="pane.directions-options-units"][value="KILOMETERS"]'
+    );
+
+    if (!kilometersInput || kilometersInput.checked || kilometersInput.disabled) {
+      return;
+    }
+
+    kilometersInput.click();
+  }
+
+  function scheduleEnforceKilometers() {
+    if (unitsTimer) {
+      return;
+    }
+
+    unitsTimer = window.setTimeout(enforceKilometers, 100);
   }
 
   function isVisible(element) {
@@ -184,6 +216,7 @@
   function observeDom() {
     const observer = new MutationObserver(() => {
       scheduleHideGalleryVideos();
+      scheduleEnforceKilometers();
 
       if (skipDirection) {
         window.clearTimeout(skipTimer);
@@ -229,5 +262,6 @@
   injectStyles();
   observeDom();
   watchSettings();
+  scheduleEnforceKilometers();
   document.addEventListener("keydown", handleKeydown, true);
 })();

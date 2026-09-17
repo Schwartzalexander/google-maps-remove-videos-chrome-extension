@@ -9,6 +9,6 @@ A chrome extension, which filters out videos from the Google Maps images page.
 
 ## What it does
 
-The content script runs on Google Maps pages, hides video tiles in the photo gallery, and automatically skips visible videos when navigating the image viewer with the left and right arrow keys.
+The content script runs on Google Maps pages, hides video tiles in the photo gallery, automatically skips visible videos when navigating the image viewer with the left and right arrow keys, and switches Google Maps directions distance units to kilometers.
 
 Click the extension icon to open the popup. The popup explains the behavior and lets you temporarily show videos again.

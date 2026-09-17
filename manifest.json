@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Google Maps Remove Videos",
-  "description": "Filters videos from the Google Maps photo view and skips them while navigating with arrow keys.",
+  "description": "Filters videos from the Google Maps photo view, skips them with arrow keys, and keeps directions in kilometers.",
   "version": "0.1.0",
   "permissions": ["storage"],
   "action": {
